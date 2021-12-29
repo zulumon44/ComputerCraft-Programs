@@ -10,8 +10,9 @@ Better documentation will be released when code is finished
   -Can be changed in the top lines of the code
 
 1. Have both computers connected via red-net 
-2. Have the "Host" create a lobby waiting for a connection from the other computer
-3. Have the "Guest" attempt to join the host's lobby
-4. Play 
+2. Install the program via pastebin
+3. Have the "Host" create a lobby waiting for a connection from the other computer
+4. Have the "Guest" attempt to join the host's lobby
+5. Play 
 
 ------------
