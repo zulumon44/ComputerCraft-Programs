@@ -4,7 +4,9 @@ A Repo containing my program(s) written for LUA 5.1 to be used inside the Comput
 Better documentation will be released when code is finished
 
 -----TTT-----
+
 https://pastebin.com/bTG0DSiv
+
 -Requires an Advanced Computer
 -Modem should be placed on LEFT side of the Computer
 -Can be changed in the top lines of the code
