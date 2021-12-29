@@ -1,11 +1,12 @@
 side = "left"
 
 PC = os.getComputerID()
-PL1 = "X"
-PL2 = "O"
+PL1 = "X" -- HOST
+PL2 = "O" -- GUEST
 
-message = ""
+gamemessage = "It's Your Turn!"
 
+----- Create Board -----
 board = {}
 for i=0, 2 do
 	board[i] = {}
@@ -14,13 +15,11 @@ for i=0, 2 do
 	end
 end
 
-print(i)
-print(k)
-
 
 function buffer()
 io.write("        ")
 end
+
 function clear()
 	term.clear()
 	term.setCursorPos(1,1)
@@ -102,8 +101,31 @@ function checkForEnd()
 		return true
 	end
 end
-
 function printBoard()
+local spot
+io.write("\n")
+for i = 0, 2 do
+for k = 0, 2 do
+	if k == 0 then
+	io.write(" ")
+	end
+	spot = getSpot(i, k)
+	io.write(spot)
+	if k ~= 2 then
+	io.write("|")
+	else
+	io.write("\n")
+	end
+end
+	if i ~= 2 then
+	io.write(" ")
+	io.write("-----\n")
+	end
+end
+io.write("\n")
+end
+
+function printBoardbuffer()
 local spot
 io.write("\n")
 for i = 0, 2 do
@@ -148,16 +170,17 @@ function checkForWin(x)
 function play(p)
 clear()
 printBoard()
+print(gamemessage)
 
 while true do 
 
 local event, button, x, y = os.pullEvent("mouse_click")
 
-if x==9 then
+if x==1 then
 bx = 0
-elseif x==11 then
+elseif x==3 then
 bx = 1
-elseif x==13 then
+elseif x==5 then
 bx = 2
 end
 
@@ -169,24 +192,20 @@ elseif y == 6 then
 by = 2
 end
 
-if x == 9 and y == 2 and button == 1 then	
-	if isEmpty(by, bx) then
+if isEmpty(by, bx) then
 		board[by][bx] = p
 		break
 	else
-		message = "That Spot is Taken!"
-		
-	end
+		gamemessage = "That Spot is Taken!"
+
 end
 
 
 
 break
 end
-
 return by, bx
 end
-
 
 
 
@@ -194,42 +213,72 @@ end
 ---------- START MAIN PROGRAM ----------
 
 clear()
-print("Tic-Tac-Toe!\nPress enter to start!\n")
+print("Tic-Tac-Toe!\nPress enter to start!")
 	junk = read()
 	clear()
 
-option = getOption()
+	option = getOption()
 
 
 ----- Establish Connection -----
-
+	
+	clear()
 	tPC = targetPC()
 	rednet.open(side)
-	clear()
+	
 ----- HOST -----
 if option == 1 then
-
+id = -1
 while true do
+clear()
 print("Waiting for Connection...\n")
 id,message = rednet.receive() 
-if id==tPC and message == "join.game"
-print("Connection Successful!")
-sleep(1.5)
+if id==tPC and message == "join.game" then
+print("Connection Recieved!")
+sleep(.5)
+rednet.send(tPC, "confirm.game") 
+id,message = rednet.receive(10)
+if id==tPC and message == "confirm.game" then
+print("Connection Established!")
+sleep(2)
 break
+else
+print("Connection Error.")
+print("Please Terminate and Try Again.")
+sleep(120)
+do return end
 end
-
 end
-
+end
 end
 	
 ----- GUEST -----
 if option == 2 then
-
-
+id = -1
+while true do
+clear()
+print("Connecting to Host...")
+rednet.send(tPC, "join.game") 
+id,message = rednet.receive(10)
+if id == tPC and message == "confirm.game" then
+print("Connection Recieved!")
+sleep(.5)
+rednet.send(tPC, "confirm.game")
+sleep(.5)
+print("Connection Established!")
+sleep(2)
+break
+else
+clear()
+print("Connection Error.")
+print("Please Terminate and Try Again.")
+sleep(120)
+do return end
+end
+end
 end	
 	
 -- NOTE: Will need one person to Search for connection and 1 to recieve
-
 
 ----- Play Game -----
 while true do
@@ -240,8 +289,8 @@ if checkForWin(PL1) == true or checkForWin(PL2) == true then
 end
 
 -- P1 Turn --
-
-play(PL1)
+gamemessage = "It's Your Turn!"
+retx, rety = play(PL1)
 
 
 -- Check --
@@ -250,13 +299,14 @@ if checkForWin(PL1) == true or checkForWin(PL2) == true then
 end
 
 -- P2 Turn --	
-play(PL2)
+gamemessage = "It's Your Turn!"
+retx, rety = play(PL2)
 
 end
 
 clear()
 io.write("-----Final Board-----\n")
-printBoard()
+printBoardspaced()
 io.write("\n")
 
 -- Check who won --
@@ -267,5 +317,5 @@ elseif checkForWin(PL1) == true then
 else
 	io.write("Player 2 Wins!")
 end
-end
+
 rednet.close(side)
