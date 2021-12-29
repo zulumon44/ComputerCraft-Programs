@@ -1,20 +1,32 @@
+-------------------------------
+-- Network Based Tic-Tac-Toe --
+-- Written for ComputerCraft --
+--      By Tyler Thomas      --
+-------------------------------
+
+
+-- Change where your Modem is on the Computer
 side = "left"
 
-PC = os.getComputerID()
+-- Change Pieces per player
 PL1 = "X" -- HOST
 PL2 = "O" -- GUEST
 
+----- Global Variables -----
 gamemessage = "It's Your Turn!"
+PC = os.getComputerID()
+turns = 0
+
+
 
 ----- Create Board -----
 board = {}
-for i=0, 2 do
+for i=1, 3 do
 	board[i] = {}
-	for k = 0, 2 do
-		board[i][k] = nil
+	for k = 1, 3 do
+		board[i][k] = "E"
 	end
 end
-
 
 function buffer()
 io.write("        ")
@@ -75,7 +87,7 @@ end
 
 
 function getSpot(x, y)
-	if board[x][y] == nil then
+	if board[x][y] == "E" then
 		return " "
 	else
 		return board[x][y]
@@ -84,40 +96,30 @@ end
 
 
 function isEmpty(x, y)
-	if board[x][y] == nil then
+	if board[x][y] == "E" then
 		return true
 	else
 		return false
 	end
 end
 
-
-function checkForEnd()
-	if checkForWin() == false then
-		if checkForTie() == true then
-			return true
-		end
-	else
-		return true
-	end
-end
 function printBoard()
 local spot
 io.write("\n")
-for i = 0, 2 do
-for k = 0, 2 do
-	if k == 0 then
+for i = 1, 3 do
+for k = 1, 3 do
+	if k == 1 then
 	io.write(" ")
 	end
 	spot = getSpot(i, k)
 	io.write(spot)
-	if k ~= 2 then
+	if k ~= 3 then
 	io.write("|")
 	else
 	io.write("\n")
 	end
 end
-	if i ~= 2 then
+	if i ~= 3 then
 	io.write(" ")
 	io.write("-----\n")
 	end
@@ -125,23 +127,23 @@ end
 io.write("\n")
 end
 
-function printBoardbuffer()
+function printBoardSpaced()
 local spot
 io.write("\n")
-for i = 0, 2 do
-for k = 0, 2 do
-	if k == 0 then
+for i = 1, 3 do
+for k = 1, 3 do
+	if k == 1 then
 	buffer()
 	end
 	spot = getSpot(i, k)
 	io.write(spot)
-	if k ~= 2 then
+	if k ~= 3 then
 	io.write("|")
 	else
 	io.write("\n")
 	end
 end
-	if i ~= 2 then
+	if i ~= 3 then
 	buffer()
 	io.write("-----\n")
 	end
@@ -151,15 +153,15 @@ end
 
 function checkForWin(x)
 	-- horizontal
-	if((board[0][0] == x) and (board[0][1] == x) and (board[0][2] == x)) or ((board[1][0] == x) and (board[01][1] == x) and (board[1][2] == x)) or ((board[2][0] == x) and (board[2][1] == x) and (board[2][2] == x)) then
+	if((board[1][1] == x) and (board[1][2] == x) and (board[1][3] == x)) or ((board[2][1] == x) and (board[2][2] == x) and (board[2][3] == x)) or ((board[3][1] == x) and (board[3][2] == x) and (board[3][3] == x)) then
 		return true
 		end
 	-- diagonal
-	if ((board[0][0] == x) and (board[1][1] == x) and (board[2][2] == x)) or ((board[2][0] == x) and (board[1][1] == x) and (board[0][2] == x)) then
+	if ((board[1][1] == x) and (board[2][2] == x) and (board[3][3] == x)) or ((board[3][1] == x) and (board[2][2] == x) and (board[1][3] == x)) then
 		return true
 		end
 	-- vertical
-	if ((board[0][0] == x) and (board[1][0] == x) and (board[2][0] == x)) or ((board[0][1] == x) and (board[1][1] == x) and (board[2][1] == x)) or ((board[0][2] == x) and (board[1][2] == x) and (board[2][2] == x)) then
+	if ((board[1][1] == x) and (board[2][1] == x) and (board[3][1] == x)) or ((board[1][2] == x) and (board[2][2] == x) and (board[3][2] == x)) or ((board[1][3] == x) and (board[2][3] == x) and (board[3][3] == x)) then
 		return true
 		end
 	-- else
@@ -168,42 +170,44 @@ function checkForWin(x)
 
 
 function play(p)
+while true do 
+
 clear()
 printBoard()
 print(gamemessage)
-
-while true do 
-
 local event, button, x, y = os.pullEvent("mouse_click")
 
-if x==1 then
-bx = 0
-elseif x==3 then
+if x==2 then
 bx = 1
-elseif x==5 then
+elseif x==4 then
 bx = 2
+elseif x==6 then
+bx = 3
+else
+bx=0
 end
 
 if y == 2 then
-by = 0
-elseif y == 4 then
 by = 1
-elseif y == 6 then
+elseif y == 4 then
 by = 2
+elseif y == 6 then
+by = 3
+else
+by=0
 end
 
-if isEmpty(by, bx) then
+if (x==2 or x==4 or x==6) and (y==2 or y==4 or y==6) and button==1 then
+if isEmpty(by, bx) == true then
 		board[by][bx] = p
+		turns = turns + 1
 		break
 	else
 		gamemessage = "That Spot is Taken!"
-
+end
+end
 end
 
-
-
-break
-end
 return by, bx
 end
 
@@ -213,20 +217,27 @@ end
 ---------- START MAIN PROGRAM ----------
 
 clear()
-print("Tic-Tac-Toe!\nPress enter to start!")
-	junk = read()
+print("Tic-Tac-Toe!\nClick Anywhere to start!")
+
+while true do 
+local event, button, x, y = os.pullEvent("mouse_click")
+if button == 1 then
+break
+end
+end
+
+----- Set Host/Guest -----
+	
 	clear()
-
 	option = getOption()
-
-
------ Establish Connection -----
+	
+----- Get Ready for Connection -----
 	
 	clear()
 	tPC = targetPC()
 	rednet.open(side)
 	
------ HOST -----
+----- HOST Connection -----
 if option == 1 then
 id = -1
 while true do
@@ -252,14 +263,14 @@ end
 end
 end
 	
------ GUEST -----
+----- GUEST Connection -----
 if option == 2 then
 id = -1
 while true do
 clear()
 print("Connecting to Host...")
 rednet.send(tPC, "join.game") 
-id,message = rednet.receive(10)
+id,message = rednet.receive(5)
 if id == tPC and message == "confirm.game" then
 print("Connection Recieved!")
 sleep(.5)
@@ -277,45 +288,108 @@ do return end
 end
 end
 end	
-	
--- NOTE: Will need one person to Search for connection and 1 to recieve
 
 ----- Play Game -----
 while true do
 
 -- Check --
-if checkForWin(PL1) == true or checkForWin(PL2) == true then
+if checkForWin(PL1) == true or checkForWin(PL2) == true or turns == 9 then
 	break
 end
 
 -- P1 Turn --
-gamemessage = "It's Your Turn!"
-retx, rety = play(PL1)
+--host--
+if option == 1 then
+	gamemessage = "It's Your Turn!"
+	retx, rety = play(PL1)
 
+	ret = retx .. " " .. rety
+	rednet.send(tPC, ret)
+	gamemessage = "Waiting for Opponent..."
+	clear()
+	printBoard()
+	print(gamemessage)
+
+--guest--
+else
+	gamemessage = "Waiting for Opponent..."
+	clear()
+	printBoard()
+	print(gamemessage)
+while true do
+	id,message = rednet.receive()
+	if id == tPC then
+		break
+	end
+end
+space = " "
+local messageString = {}
+for w in message:gmatch("%S+") do 
+table.insert(messageString, w)
+end
+print(messageString[1])
+local s1 = tonumber(messageString[1])
+print(messageString[2])
+local s2 = tonumber(messageString[2])
+board[s1][s2] = PL1
+turns = turns + 1
+end
 
 -- Check --
-if checkForWin(PL1) == true or checkForWin(PL2) == true then
+if checkForWin(PL1) == true or checkForWin(PL2) == true or turns == 9 then
 	break
 end
 
 -- P2 Turn --	
-gamemessage = "It's Your Turn!"
-retx, rety = play(PL2)
 
+--guest--
+if option == 2 then
+	gamemessage = "It's Your Turn!"
+	retx, rety = play(PL2)
+
+	ret = retx .. " " .. rety
+	rednet.send(tPC, ret)
+
+--host--
+else
+while true do
+	id,message = rednet.receive()
+	if id == tPC then
+		break
+	end
 end
+space = " "
+local messageString = {}
+for w in message:gmatch("%S+") do 
+table.insert(messageString, w)
+end
+print(messageString[1])
+local s1 = tonumber(messageString[1])
+print(messageString[2])
+local s2 = tonumber(messageString[2])
+board[s1][s2] = PL2
+turns = turns + 1
+end
+
+end 
+-- End Game Loop --
 
 clear()
 io.write("-----Final Board-----\n")
-printBoardspaced()
+printBoardSpaced()
 io.write("\n")
 
 -- Check who won --
 if checkForWin(PL1) == false and checkForWin(PL2) == false then
-	io.write("Tie!")
+	io.write("Tie!\n")
 elseif checkForWin(PL1) == true then
-	io.write("Player 1 Wins!")
+	io.write("Player ")
+	io.write(PL1)
+	io.write(" Wins!\n")
 else
-	io.write("Player 2 Wins!")
+	io.write("Player ")
+	io.write(PL2)
+	io.write(" Wins!\n")
 end
 
 rednet.close(side)
